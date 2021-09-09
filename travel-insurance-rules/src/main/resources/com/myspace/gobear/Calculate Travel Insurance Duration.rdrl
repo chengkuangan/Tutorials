@@ -1,0 +1,14 @@
+package com.myspace.gobear;
+
+import java.lang.Number;
+
+rule "Calculate Travel Insurance Duration"
+	dialect "mvel"
+	salience 10
+	when
+		req1 : TravelInsuranceRequest( startDate != null && endDate != null )
+	then
+		modify( req1 ) {
+				setDuration( calculateDayDiff(req1.startDate, req1.endDate) )
+		}
+end

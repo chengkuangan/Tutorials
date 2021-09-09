@@ -1,0 +1,5 @@
+Host gogs-ssh.mydm-tools.svc.cluster.local
+    Hostname gogs-ssh.mydm-tools.svc.cluster.local
+    User demo2
+    Port 1025
+    IdentityFile ~/.ssh/id_rsa

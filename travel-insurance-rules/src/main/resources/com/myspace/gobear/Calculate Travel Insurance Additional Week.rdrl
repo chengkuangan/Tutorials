@@ -1,0 +1,14 @@
+package com.myspace.gobear;
+
+import java.lang.Number;
+
+rule "Calculate Travel Insurance Additional Week"
+	dialect "mvel"
+	salience 9
+	when
+		req1 : TravelInsuranceRequest( duration >= 29 )
+	then
+		modify( req1 ) {
+				setAdditionalWeek( calculateWeek(req1.duration) )
+		}
+end

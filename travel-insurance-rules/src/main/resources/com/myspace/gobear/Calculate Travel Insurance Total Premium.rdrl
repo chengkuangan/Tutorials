@@ -1,0 +1,14 @@
+package com.myspace.gobear;
+
+import java.lang.Number;
+
+rule "Calculate Travel Insurance Total Premium"
+	dialect "mvel"
+	salience 1
+	when
+		req1 : TravelInsuranceRequest( )
+	then
+		modify( req1 ) {
+				setTotalPremium( calculateTotalPremium(req1.additionalWeek, req1.additionalPremium, req1.standardPremium) )
+		}
+end

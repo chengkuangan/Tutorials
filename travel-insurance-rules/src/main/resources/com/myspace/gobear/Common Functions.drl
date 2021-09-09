@@ -1,0 +1,27 @@
+package com.myspace.gobear;
+
+function int calculateWeek (int days){
+    
+    	double duration = java.lang.Double.valueOf(days);;
+		double week = (duration-28) / 7;
+		week = java.lang.Math.ceil(week);
+		
+		return (int) week;
+		
+}
+
+function int calculateDayDiff (java.util.Date firstDate, java.util.Date secondDate){
+    
+    long diffInMillies = java.lang.Math.abs(secondDate.getTime() - firstDate.getTime());
+	long diff = java.util.concurrent.TimeUnit.DAYS.convert(diffInMillies, java.util.concurrent.TimeUnit.MILLISECONDS);
+	
+	return (int) diff;    
+}
+
+function double calculateTotalPremium(int additionalWeek, double additionalPremium, double standardPremium){
+    double totalAdditionalPremium = 0.0;
+    if (additionalWeek > 0 && additionalPremium > 0.0){
+        totalAdditionalPremium = additionalWeek * additionalPremium;
+    }
+    return (standardPremium + totalAdditionalPremium);
+}
