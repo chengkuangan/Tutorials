@@ -1,0 +1,58 @@
+#!groovy
+
+// Important
+// Remember to ensure that the Project version information is on top of the pom.xml file because
+// the getVersionFromPom will attempt to read the version information that it encounter at the
+// first occurance.
+
+node('dotnet-22') {
+
+  stage('Clone') {
+    // sh "git clone http://gogs-pbb-cicd.apps.ocp.demo.com/poc/sampledotnet.git"
+    checkout scm
+    // checkout($class: 'TeamFoundationServerScm', localPath: 'D:\Build-Code-Scm', projectPath: '$/RootDirectory/SubFolder', serverUrl: '[http://TEST.TEST.com:8080/TEST/TEST)
+    // checkout([$class: 'TeamFoundationServerScm', credentialsConfigurer: [$class: 'AutomaticCredentialsConfigurer'], projectPath: '$/ProjectName', serverUrl: 'CollectionURL', useOverwrite: true, useUpdate: true, workspaceName: 'Hudson-${JOB_NAME}'])}}
+  }
+
+  stage('Restore') {
+    sh "dotnet restore Test.csproj --configfile nuget.config --force --verbosity d"
+    // dir('app') { // -- if using git clone, the codes are cloned into <project_folder>/app
+        //sh "dotnet restore ../sampledotnet/Test.csproj --configfile ../sampledotnet/nuget.config --force --verbosity d"
+    //}
+  }
+
+  stage('Publish') {
+    sh "dotnet publish Test.csproj --no-restore  -c Release /p:MicrosoftNETPlatformLibrary=Microsoft.NETCore.App"
+    // dir('app') { // -- if using git clone, the codes are cloned into <project_folder>/app
+        // sh "dotnet publish ../sampledotnet/Test.csproj --no-restore  -c Release /p:MicrosoftNETPlatformLibrary=Microsoft.NETCore.App"
+    //}
+  }
+
+  stage('Create Image') {
+    // dir('app') { // -- if using git clone, the codes are cloned into <project_folder>/app
+        SH_BC_NAME = sh (
+            script: "oc get bc/dotnetapp --no-headers --ignore-not-found=true -o custom-columns=metadata:metadata.name",
+            returnStdout: true
+        ).trim()
+        if ("${SH_BC_NAME}" == ""){
+            sh 'oc new-build --name=dotnetapp dotnet:2.2 --binary=true || true'
+        }
+        sh 'oc start-build dotnetapp --from-dir=./bin/Release/netcoreapp2.2/rhel.7-x64/publish --follow'
+        //sh 'oc start-build dotnetapp --from-dir=../sampledotnet/bin/Release/netcoreapp2.2/rhel.7-x64/publish --follow'
+    //}
+  }
+
+  stage ('Deploy Container'){
+    SH_DC_NAME = sh (
+        script: "oc get dc/dotnetapp --no-headers --ignore-not-found=true -o custom-columns=metadata:metadata.name",
+        returnStdout: true
+    ).trim()
+    if ("${SH_BC_NAME}" == ""){
+        sh 'oc new-app dotnetapp'
+        sh 'oc export service dotnetapp'
+    }
+  }
+
+}
+
+
