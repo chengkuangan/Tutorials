@@ -1,0 +1,9 @@
+.DS_Store
+.settings
+target
+.project
+.classpath
+.vscode
+.srl
+tmp
+temp

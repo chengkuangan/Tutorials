@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   kafka:
-    image: chengkuan/opay/kafka-2.13-2.8.0:latest
+    image: chengkuan/kafka-2.13-2.8.0:latest
     ports:
      - 9092:9092
      - 9093:9093
@@ -38,7 +38,7 @@ services:
      - POSTGRES_PASSWORD=core
      - PGPASSWORD=core
   casa-service:
-    image: chengkuan/opay/casa-service:latest
+    image: chengkuan/casa-service:latest
     build:
       context: CasaService
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
@@ -65,7 +65,7 @@ services:
       kafka:
         condition: service_healthy  
   core-service:
-    image: chengkuan/opay/core-service:latest
+    image: chengkuan/core-service:latest
     build:
       context: CoreService
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
@@ -93,7 +93,7 @@ services:
       kafka:
         condition: service_healthy   
   kafka-connect:
-    image: chengkuan/opay/kafka-connect-1.6.1.final:latest
+    image: chengkuan/kafka-connect-1.6.1.final:latest
     ports:
      - 9080:9080
     links:
@@ -129,7 +129,7 @@ services:
       core-postgres:
         condition: service_healthy
   audit-aggregator-streams:
-    image: chengkuan/opay/audit-aggregator:latest
+    image: chengkuan/audit-aggregator:latest
     build:
       context: AuditLogAggregator
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
@@ -153,7 +153,7 @@ services:
       kafka:
         condition: service_healthy
   audit-mongodb:
-    image: chengkuan/opay/mongodb-5.0.2:latest
+    image: chengkuan/mongodb-5.0.2:latest
     ports:
      - 27017:27017
     healthcheck:

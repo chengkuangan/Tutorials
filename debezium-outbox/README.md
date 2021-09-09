@@ -1,6 +1,6 @@
 # Debezium Outbox Pattern Example
 
-OPAy stands for Open Payment. This is project to demonstrate how to use open source techology to implement microservice based architecture for Payment System
+This is project to demonstrate how to implement Outbox Pattern using Debezium
 
 
 ### To Build this project
