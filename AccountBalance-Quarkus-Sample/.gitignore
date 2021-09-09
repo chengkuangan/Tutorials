@@ -1,0 +1,6 @@
+target
+.project
+.sts4-cache
+.settings
+.DS_Store
+.classpath

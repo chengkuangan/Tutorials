@@ -1,0 +1,4 @@
+== Sample Source Code for Red Hat Developer Article
+
+Please refer to the complete guide on this developer article
+... coming ... waiting for article to be published...
