@@ -1,0 +1,171 @@
+version: '2.1'
+services:
+  kafka:
+    image: chengkuan/opay/kafka-2.13-2.8.0:latest
+    ports:
+     - 9092:9092
+     - 9093:9093
+    healthcheck:
+      test:
+        ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka:9092", "--list"]
+      interval: 30s
+      timeout: 10s
+      retries: 10 
+  casa-postgres:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION:-1.6.1.Final}
+    ports:
+     - 5432:5432
+    healthcheck:
+      test: "pg_isready -U casa -d casa"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+     - POSTGRES_USER=casa
+     - POSTGRES_PASSWORD=casa
+     - PGPASSWORD=casa
+  core-postgres:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION:-1.6.1.Final}
+    ports:
+     - 5433:5432
+    healthcheck:
+      test: "pg_isready -U core -d core"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+     - POSTGRES_USER=core
+     - POSTGRES_PASSWORD=core
+     - PGPASSWORD=core
+  casa-service:
+    image: chengkuan/opay/casa-service:latest
+    build:
+      context: CasaService
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
+    healthcheck:
+      test: "curl http://localhost:8080/q/health/live"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    ports:
+     - 8080:8080
+    links:
+     - casa-postgres
+    environment:
+     - QUARKUS_DEBEZIUM_OUTBOX_REMOVE_AFTER_INSERT=false
+     - POSTGRES_HOST=casa-postgres
+     - POSTGRES_USER=casa
+     - POSTGRES_PASSWORD=casa
+     - KAFKA_SERVER=kafka:9092
+     - KAFKA_TOPIC=casa.response.events
+     - KAFKA_CONSUMER_GROUP_ID=casa
+    depends_on:
+      casa-postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy  
+  core-service:
+    image: chengkuan/opay/core-service:latest
+    build:
+      context: CoreService
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
+    healthcheck:
+      test: "curl http://localhost:8080/q/health/live"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    ports:
+     - 8081:8080
+    links:
+     - core-postgres
+     - kafka
+    environment:
+     - QUARKUS_DEBEZIUM_OUTBOX_REMOVE_AFTER_INSERT=false
+     - POSTGRES_HOST=core-postgres
+     - POSTGRES_USER=core
+     - POSTGRES_PASSWORD=core
+     - KAFKA_SERVER=kafka:9092
+     - KAFKA_TOPIC=casa.events
+     - KAFKA_CONSUMER_GROUP_ID=core-casa
+    depends_on:
+      core-postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy   
+  kafka-connect:
+    image: chengkuan/opay/kafka-connect-1.6.1.final:latest
+    ports:
+     - 9080:9080
+    links:
+     - casa-postgres
+     - kafka
+     - core-postgres
+    environment:
+     - KAFKA_LOG4J_OPTS=-Dlog4j.configuration=file:/opt/kafka/config/connect-log4j.properties
+     - KAFKA_CONNECT_BOOTSTRAP_SERVERS=kafka:9092
+     - |
+         KAFKA_CONNECT_CONFIGURATION=
+         key.converter=org.apache.kafka.connect.json.JsonConverter
+         value.converter=org.apache.kafka.connect.json.JsonConverter
+         key.converter.schemas.enable=false
+         value.converter.schemas.enable=false
+         group.id=opay-connect
+         offset.storage.topic=opay-offsets
+         offset.storage.replication.factor=1
+         config.storage.topic=opay-configs
+         config.storage.replication.factor=1
+         status.storage.topic=opay-status
+         status.storage.replication.factor=1
+         consumer.interceptor.classes=io.opentracing.contrib.kafka.TracingConsumerInterceptor
+         producer.interceptor.classes=io.opentracing.contrib.kafka.TracingProducerInterceptor
+         rest.advertised.port=9080
+         rest.port=9080
+    command: /opt/kafka/kafka_connect_run.sh
+    depends_on:
+      kafka:
+        condition: service_healthy
+      casa-postgres:
+        condition: service_healthy
+      core-postgres:
+        condition: service_healthy
+  audit-aggregator-streams:
+    image: chengkuan/opay/audit-aggregator:latest
+    build:
+      context: AuditLogAggregator
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
+    healthcheck:
+      test: "curl http://localhost:8080/q/health/live"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    ports:
+     - 8082:8080
+    links:
+     - kafka
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - APPLICATION_SERVER=localhost:8080
+     - KAFKA_STREAMS_TOPICS=casa.audit.events,casa.core.audit.events
+     - CASA_AUDIT_TOPIC=casa.audit.events
+     - CASA_CORE_AUDIT_TOPIC=casa.core.audit.events
+     - PAYMENT_AUDIT_TOPIC=payment.audit.events
+    depends_on:
+      kafka:
+        condition: service_healthy
+  audit-mongodb:
+    image: chengkuan/opay/mongodb-5.0.2:latest
+    ports:
+     - 27017:27017
+    healthcheck:
+      test: 'mongo localhost:27017/test --quiet'
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    volumes:
+      - /var/lib/mongodb
+    environment:
+     - MONGO_INITDB_ROOT_USERNAME=audit
+     - MONGO_INITDB_ROOT_PASSWORD=audit
+     - MONGODB_ADMIN_USER=audit
+     - MONGODB_ADMIN_PASSWORD=audit
+     - MONGODB_DATABASE=audit

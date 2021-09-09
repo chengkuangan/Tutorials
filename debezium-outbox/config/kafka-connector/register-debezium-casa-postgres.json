@@ -1,0 +1,22 @@
+{
+    "name": "outbox-connector-casa",
+    "config" : {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "casa-postgres",
+        "database.port": "5432",
+        "database.user": "casa",
+        "database.password": "casa",
+        "database.dbname": "casa",
+        "database.server.name": "casa-event",
+        "schema.include.list": "payment",
+        "table.include.list": "payment.CasaOutboxEvent",
+        "tombstones.on.delete": "false",
+        "transforms": "outbox",
+        "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+        "transforms.outbox.route.topic.replacement": "${routedByValue}.events",
+        "transforms.outbox.table.field.event.timestamp": "timestamp",
+        "transforms.outbox.table.field.event.id": "aggregateid",
+        "transforms.outbox.table.fields.additional.placement": "type:header:eventType"
+    }
+}

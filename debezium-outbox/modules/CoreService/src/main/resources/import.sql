@@ -1,0 +1,2 @@
+insert into core.casa (accountNo, balance, createdTimestamp) values ('1-987654-1234-4569', 150000, CURRENT_TIMESTAMP);
+insert into core.casa (accountNo, balance, createdTimestamp) values ('1-234567-4321-9876', 300000, CURRENT_TIMESTAMP);

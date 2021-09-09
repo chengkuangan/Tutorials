@@ -1,0 +1,16 @@
+{
+    "name": "mongodb-sink",
+    "config": {
+        "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
+        "tasks.max": 1,
+        "topics": "payment.audit.events",
+        "connection.uri": "mongodb://audit:audit@audit-mongodb:27017",
+        "database": "audit",
+        "collection": "payment",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": false,
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": false,
+        "max.num.retries": 3
+    }
+}
