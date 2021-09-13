@@ -29,3 +29,13 @@ To build specific project:
 ```
 mvn clean package -pl CasaService
 ```
+
+## To run the modules as containers
+
+1. Change your directory to `modules`
+
+2. Run `docker compose` command
+
+```
+docker compose up --build
+```
