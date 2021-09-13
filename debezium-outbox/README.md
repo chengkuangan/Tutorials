@@ -1,7 +1,12 @@
 # Debezium Outbox Pattern Example
 
-This is project to demonstrate how to implement Outbox Pattern using Debezium
+This is project to demonstrate how to implement Outbox Pattern using Debezium.
 
+![Component Diagram](images/debezium-outbox-pattern.png)
+
+It is base on a fictional CASA payment transaction process. 
+
+You can refers to the complete tutorial at [A True Atomic Microservices Implementation with Debezium to Ensure Data Consistency](https://braindose.blog/2021/09/13/true-atomic-microservices-debezium/)
 
 ### To Build this project
 
