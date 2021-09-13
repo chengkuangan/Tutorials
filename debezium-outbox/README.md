@@ -2,7 +2,7 @@
 
 This is project to demonstrate how to implement Outbox Pattern using Debezium.
 
-![Component Diagram](images/debezium-outbox-pattern.png)
+![Component Diagram](images/debezium-outbox-pattern-white-bg.png)
 
 It is base on a fictional CASA payment transaction process. 
 
