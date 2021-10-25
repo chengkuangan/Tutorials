@@ -10,7 +10,11 @@ services:
         ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka:9092", "--list"]
       interval: 30s
       timeout: 10s
-      retries: 10 
+      retries: 10
+    environment:
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9093
   casa-postgres:
     image: debezium/example-postgres:${DEBEZIUM_VERSION:-1.6.1.Final}
     ports:
