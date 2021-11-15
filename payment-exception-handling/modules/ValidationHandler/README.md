@@ -1,6 +1,6 @@
-# Audit Log Aggregator Service
+# Validation Handler
 
-Using the Kafka Streams API to provides simulation for audit trails aggregation and cleansing on multiple audit trails entries from different microservices.
+Using the Kafka Streams API to consolidates and route messages from [Credit Check](../LimitCheck) and [Fraud Check](../FraudCheck)
 
 ## Using this in armv7 like RPI
 

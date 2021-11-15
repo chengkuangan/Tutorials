@@ -1,10 +1,10 @@
 # LimitCheck 
 
-Provides Kogito DMN implementation to perform fraud check for a specific transaction from Apache Kafka Streams.
+Provides Kogito decision service implementation to perform fraud check for a specific transaction consumed from Apache Kafka Streams.
 
-The CloudEvent format input example:
+The CloudEvents formatted input example:
 
-```
+```json
 {
   "specversion": "1.0",
   "id": "a89b61a2-5644-487a-8a86-144855c5dce8",
@@ -28,7 +28,7 @@ The CloudEvent format input example:
 
 Example of result message in Kafka topic:
 
-```
+```json
 {
   "specversion": "1.0",
   "id": "91847bcc-bbe3-49a5-ba01-6b0d6776d42a",
