@@ -1,0 +1,47 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: opay-connect-cluster
+#  annotations:
+#  # use-connector-resources configures this KafkaConnect
+#  # to use KafkaConnector resources to avoid
+#  # needing to call the Connect REST API directly
+#    strimzi.io/use-connector-resources: "true"
+spec:
+  version: 2.8.0
+  replicas: 1
+  bootstrapServers: kafka-cluster-kafka-bootstrap:9093
+  tls:
+    trustedCertificates:
+      - secretName: kafka-cluster-cluster-ca-cert
+        certificate: ca.crt
+  image: docker.io/chengkuan/kafka-connect-1.6.1.final:latest
+  config:
+    group.id: connect-cluster
+    # -1 means it will use the default replication factor configured in the broker
+    config.storage.replication.factor: -1
+    offset.storage.replication.factor: -1
+    status.storage.replication.factor: -1
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: false
+    value.converter.schemas.enable: false
+    group.id: opay-connect
+    offset.storage.topic: opay-offsets
+    offset.storage.replication.factor: 1
+    config.storage.topic: opay-configs
+    config.storage.replication.factor: 1
+    status.storage.topic: opay-status
+    status.storage.replication.factor: 1
+    consumer.interceptor.classes: io.opentracing.contrib.kafka.TracingConsumerInterceptor
+    producer.interceptor.classes: io.opentracing.contrib.kafka.TracingProducerInterceptor
+    rest.advertised.port: 8080
+    rest.port: 8080
+  metrics:
+    lowercaseOutputName: true
+    lowercaseOutputLabelNames: true
+    rules:
+    - pattern : "kafka.connect<type=connect-worker-metrics>([^:]+):"
+      name: "kafka_connect_connect_worker_metrics_$1"
+    - pattern : "kafka.connect<type=connect-metrics, client-id=([^:]+)><>([^:]+)"
+      name: "kafka_connect_connect_metrics_$1_$2"

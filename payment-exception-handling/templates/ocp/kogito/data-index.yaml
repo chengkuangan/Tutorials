@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: data-index
+  name: data-index
+spec:
+  ports:
+  - name: tcp
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: data-index
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: data-index
+  name: data-index
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: data-index
+    version: 1.12.0
+  name: data-index
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-index
+  template:
+    metadata:
+      labels:
+        app: data-index
+        version: 1.12.0
+    spec:
+      containers:
+      - env:
+        - name: QUARKUS_INFINISPAN_CLIENT_USE_AUTH
+          value: "false"
+        - name: QUARKUS_INFINISPAN_CLIENT_SERVER_LIST
+          value: infinispan:11222
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: kafka:9092
+        - name: KOGITO_DATA_INDEX_PROPS
+          value: -Dkogito.protobuf.folder=/home/kogito/data/protobufs/
+        image: quay.io/kiegroup/kogito-data-index-infinispan:latest
+        imagePullPolicy: IfNotPresent
+        name: data-index
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /home/kogito/data/protobufs
+          name: data-index
+      restartPolicy: Always
+      volumes:
+      - name: data-index
+        persistentVolumeClaim:
+          claimName: data-index
+  test: false

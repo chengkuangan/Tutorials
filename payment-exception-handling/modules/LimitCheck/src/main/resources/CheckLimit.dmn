@@ -1,0 +1,354 @@
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kiegroup.org/dmn/_1D3A94BF-BCD5-470A-B22A-38B9E60ED24E" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="_7D225D2B-9F56-41BA-B275-38CF58C94A6C" name="checklimit" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kiegroup.org/dmn/_1D3A94BF-BCD5-470A-B22A-38B9E60ED24E">
+  <dmn:extensionElements/>
+  <dmn:itemDefinition id="_BDA6E095-0B54-440A-B83D-5997CAD7D97D" name="Result" isCollection="false">
+    <dmn:itemComponent id="_26710A3C-63D6-4903-881C-58FF1CFA9E06" name="transactionId" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_33628453-59D8-4967-9813-22ECE5AD6179" name="status" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_1048731C-0600-46A1-9398-C7082E5B8D5C" name="reason" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_CD054153-8EA6-496E-A7C4-6005196C2CA6" name="timestamp" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_A278E7F2-076D-423A-9089-5A11361B9FE7" name="allowException" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_F0673403-10D3-4DD6-BC8E-8C25D9A39245" name="CreditDetail" isCollection="false">
+    <dmn:itemComponent id="_D90279B1-5F18-462C-806B-C51301875CBE" name="dailyTotalAmount" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_0B595E92-A1BD-44E0-87FB-B4A814D4A5A5" name="balance" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_CCABCE76-3136-42D1-B666-9D259A77D1D0" name="dailyLimit" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_C1E2A199-810A-4C9D-80FD-C01A868E6781" name="amount" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_2FC02F37-1285-4A0B-ADA6-FFADEAD95AF7" name="exception" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_ACA0DAFA-8BB1-44AC-952F-03A4AF736CCB" name="transactionId" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:inputData id="_F3A05DDD-1A0A-4AB2-8B23-97173E005CF9" name="CreditDetail">
+    <dmn:extensionElements/>
+    <dmn:variable id="_C8285F53-07AE-464B-910E-CF66AF81AA35" name="CreditDetail" typeRef="CreditDetail"/>
+  </dmn:inputData>
+  <dmn:decision id="_FCD195E6-2CF7-4808-A2E9-48AC94A3B2F1" name="CheckLimit">
+    <dmn:extensionElements/>
+    <dmn:variable id="_2E8524E5-FB12-473A-B659-6485A2A6BB8B" name="CheckLimit" typeRef="Result"/>
+    <dmn:informationRequirement id="_CEEEF964-9CFA-469B-9E8D-7B009CEA3DC1">
+      <dmn:requiredInput href="#_F3A05DDD-1A0A-4AB2-8B23-97173E005CF9"/>
+    </dmn:informationRequirement>
+    <dmn:knowledgeRequirement id="_8318DF65-2F20-4B8D-BB13-E7946B68A7D0">
+      <dmn:requiredKnowledge href="#_14B4D17E-9526-4C65-94F9-7DC0ADA5511E"/>
+    </dmn:knowledgeRequirement>
+    <dmn:decisionTable id="_3C0237C4-A86B-429E-8C72-C7286A86C963" hitPolicy="FIRST" preferredOrientation="Rule-as-Row">
+      <dmn:input id="_0B534760-A56C-46D9-883E-CEF7CE629C8E">
+        <dmn:inputExpression id="_AF5D5F51-AB84-43D8-A5E6-E50B2C67A49B" typeRef="boolean">
+          <dmn:text>CreditDetail.exception</dmn:text>
+        </dmn:inputExpression>
+      </dmn:input>
+      <dmn:input id="_03D01E06-B1E3-4743-993E-02036B4DA8C2">
+        <dmn:inputExpression id="_758BC9AD-5F47-4BFC-8290-F8D8FF4193ED" typeRef="boolean">
+          <dmn:text>CreditDetail.amount &gt; 0</dmn:text>
+        </dmn:inputExpression>
+      </dmn:input>
+      <dmn:input id="_F7AAAA6C-5DFF-4818-9DA8-013F4D5A4986">
+        <dmn:inputExpression id="_72D011F3-76D5-4EC3-9570-D401D2D2EA74" typeRef="boolean">
+          <dmn:text>CreditDetail.balance &gt; 0</dmn:text>
+        </dmn:inputExpression>
+      </dmn:input>
+      <dmn:input id="_574BB7D6-6CD6-43BF-B71A-83E6ADDD4043">
+        <dmn:inputExpression id="_0C886634-E2A4-431C-A6EA-B4392E6D091E" typeRef="boolean">
+          <dmn:text>CreditDetail.amount &lt; CreditDetail.balance</dmn:text>
+        </dmn:inputExpression>
+      </dmn:input>
+      <dmn:input id="_907F9571-3D29-4A34-AAB8-1546A7E6C852">
+        <dmn:inputExpression id="_5A5E6BA0-4CE4-4C6B-A936-5C2A3C071CBF" typeRef="boolean">
+          <dmn:text>CreditDetail.dailyLimit &gt; (CreditDetail.amount + CreditDetail.dailyTotalAmount)</dmn:text>
+        </dmn:inputExpression>
+      </dmn:input>
+      <dmn:output id="_A232724D-BC90-4D84-B893-1392D9387843" name="status" typeRef="boolean"/>
+      <dmn:output id="_4B0EE98A-B031-444D-8069-7BC583FE2AFA" name="transactionId" typeRef="string"/>
+      <dmn:output id="_FDF38C26-747F-4D41-AA5D-61549C94F3D3" name="reason" typeRef="string"/>
+      <dmn:output id="_A4A57122-DAB8-444F-BD40-79FDFA6D296B" name="allowException" typeRef="boolean"/>
+      <dmn:output id="_44A74271-4F7D-4F0F-B7F6-D0ECCE537868" name="timestamp" typeRef="number"/>
+      <dmn:annotation name="annotation-1"/>
+      <dmn:rule id="_25181100-0369-408D-AEBA-FA38F9C2D616">
+        <dmn:inputEntry id="_370B09E9-1F91-4F83-BDE0-653AA0056D61">
+          <dmn:text>true</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_CC5AA139-8DE6-421F-ACF1-81908DA4E396">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_B4040CF2-05FB-426A-B486-BBFC10D42C73">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_4CDF03F1-FBEA-4B8E-8D07-B7014457510F">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_5168481F-FAFA-47A0-8789-AC3057AD855D">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_F0EC5F7F-302E-4116-A67F-285140E5649E">
+          <dmn:text>true</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_A7141789-859E-4CAB-B450-0411439EB9D9">
+          <dmn:text>CreditDetail.transactionId</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_B69D610D-C429-4832-9322-698853B434AB">
+          <dmn:text/>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_E2980E99-19E8-42EB-A3A6-6034799BCCE6">
+          <dmn:text>true</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_0794B2C7-99EB-40C1-83F2-7DEE54C1278F">
+          <dmn:text>now()</dmn:text>
+        </dmn:outputEntry>
+        <dmn:annotationEntry>
+          <dmn:text/>
+        </dmn:annotationEntry>
+      </dmn:rule>
+      <dmn:rule id="_AFCD53D5-1AB4-4858-B4A5-13E104DC76CB">
+        <dmn:inputEntry id="_B8A91E2B-E498-4E15-AC99-CC437D97C976">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_30D29189-04C8-4226-83FA-45A1ED857ED2">
+          <dmn:text>true</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_0627161E-6EE2-4117-9080-6422628CA2D8">
+          <dmn:text>true</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_11CE5C8B-6BF6-4B9D-8F8E-5D826EC788C8">
+          <dmn:text>true</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_88918C30-24EA-4D95-B62B-41F9CE1DDE00">
+          <dmn:text>true</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_972D1A6F-39CE-4DB4-9BDC-E93E34A6FC0A">
+          <dmn:text>true</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_FF0F6958-0859-45D5-ACE0-AA98D865EC31">
+          <dmn:text>CreditDetail.transactionId</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_4F1CB113-EF60-4749-9706-9A33BEF39269">
+          <dmn:text/>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_5F0505E8-44D5-442C-8D87-E6955F9300B2">
+          <dmn:text>true</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_6E8787D4-008C-47F1-B7AE-42669E978B84">
+          <dmn:text>now()</dmn:text>
+        </dmn:outputEntry>
+        <dmn:annotationEntry>
+          <dmn:text/>
+        </dmn:annotationEntry>
+      </dmn:rule>
+      <dmn:rule id="_EBE7E8D9-D14F-45FE-9D45-986598CACB4D">
+        <dmn:inputEntry id="_1D2C5F39-B0F6-4626-B583-FE264ABA903C">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_67D1AA80-9321-400E-8301-4B7532E53008">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_349FE179-FA40-47AB-A985-F7452AA2F0BD">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_FBA78F35-373E-4E41-BD44-4C3F37AAD9E3">
+          <dmn:text>false</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_A110DCEC-6820-4B33-B5F8-EEDE11B725DA">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_1C2EA7F7-0657-4604-8B07-634A62BDE6BE">
+          <dmn:text>false</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_9DA86BC3-5B1A-4857-ACFB-A759736170EE">
+          <dmn:text>CreditDetail.transactionId</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_675BF998-A59E-4DDF-90A9-338CA1F7B97A">
+          <dmn:text>"Balance amount is insufficient"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_B02AC94D-982E-42B3-AD47-E9F4535FB25A">
+          <dmn:text>false</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_CB89F987-A393-4593-A981-BDA2EE0E5C4B">
+          <dmn:text>now()</dmn:text>
+        </dmn:outputEntry>
+        <dmn:annotationEntry>
+          <dmn:text/>
+        </dmn:annotationEntry>
+      </dmn:rule>
+      <dmn:rule id="_2F0B43D0-4D45-420F-8EA0-BCB0FFAACC64">
+        <dmn:inputEntry id="_DDADB9B6-EB32-426C-BF8C-EE99CB3F5A4D">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_B522664C-829D-4B17-AAF6-5D7656A49F9F">
+          <dmn:text>false</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_38102ACD-BF43-45FE-B32F-C49D02E06027">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_EF592D83-4D7A-4A69-8283-DA608BBFE04F">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_2C7183D1-6354-497B-ADDE-BD59C22A1EE4">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_97369A9B-0937-44B1-83FB-B0AAF266A91F">
+          <dmn:text>false</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_B1A5B3B7-33A6-4976-8719-AA8A7F8C92D9">
+          <dmn:text>CreditDetail.transactionId</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_0556450D-85CE-422E-9462-45FAD4520F44">
+          <dmn:text>"Tranfer amount is not valid"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_E89C399A-BB2F-4A01-AC42-102FB4E4CAFF">
+          <dmn:text>false</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_D2DB09FA-FF32-49F4-A56E-07BD347E01E0">
+          <dmn:text>now()</dmn:text>
+        </dmn:outputEntry>
+        <dmn:annotationEntry>
+          <dmn:text/>
+        </dmn:annotationEntry>
+      </dmn:rule>
+      <dmn:rule id="_6265C026-6192-4BEB-B3A7-456C53B04FC4">
+        <dmn:inputEntry id="_2DFF95D5-1A90-47E5-9E24-EC8F14BF81B7">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_734FD384-8A96-4D86-B77C-BCFA9E567320">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_4F2F83EF-2A2D-4E77-B7C1-AB6D9725B7B5">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_2782A4A1-1797-497F-9452-D441AC6C76F7">
+          <dmn:text>-</dmn:text>
+        </dmn:inputEntry>
+        <dmn:inputEntry id="_F03A91DF-AF0E-460F-A1F1-0F1E2C676A54">
+          <dmn:text>false</dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_A2ECDA19-173F-4F0D-9B02-5DFF5F3F460D">
+          <dmn:text>false</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_A4722DD7-DD7D-4B52-9EDD-3B892D767BEA">
+          <dmn:text>CreditDetail.transactionId</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_9F524CBE-5504-4D74-B777-BD6B55DD4171">
+          <dmn:text>"Exceeded daily transfer limit"</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_B7BA9FD4-D2AE-43D4-9714-EF596AE57A24">
+          <dmn:text>true</dmn:text>
+        </dmn:outputEntry>
+        <dmn:outputEntry id="_D19FD08D-6D06-4A10-9551-B15F5E08DF4E">
+          <dmn:text>now()</dmn:text>
+        </dmn:outputEntry>
+        <dmn:annotationEntry>
+          <dmn:text/>
+        </dmn:annotationEntry>
+      </dmn:rule>
+    </dmn:decisionTable>
+  </dmn:decision>
+  <dmn:businessKnowledgeModel id="_14B4D17E-9526-4C65-94F9-7DC0ADA5511E" name="now">
+    <dmn:extensionElements/>
+    <dmn:variable id="_AB81D81B-1C80-4689-A1C5-189AB994C57E" name="now"/>
+    <dmn:encapsulatedLogic id="_F26629C7-B5CF-414F-A53B-882E4501C071" kind="Java">
+      <dmn:context id="_3B9D506B-CA8F-4943-AF61-2993E70684DD">
+        <dmn:contextEntry>
+          <dmn:variable id="_0AE083CB-A626-485C-9B8E-7DBC185E5263" name="class" typeRef="string"/>
+          <dmn:literalExpression id="_CCBB0ED3-4997-41CC-8C11-52A4C8DDDBB4">
+            <dmn:text>blog.braindose.opay.dmn.Util</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+        <dmn:contextEntry>
+          <dmn:variable id="_1293320D-B2FF-49DC-B6E0-F0867C79B61C" name="method signature" typeRef="string"/>
+          <dmn:literalExpression id="_A8489917-0285-49E0-BCB0-5046E3876FD6">
+            <dmn:text>now()</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+      </dmn:context>
+    </dmn:encapsulatedLogic>
+  </dmn:businessKnowledgeModel>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_EEF060B9-B5CD-4DFB-9135-92209886A484" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_3C0237C4-A86B-429E-8C72-C7286A86C963">
+            <kie:width>50</kie:width>
+            <kie:width>202</kie:width>
+            <kie:width>209</kie:width>
+            <kie:width>213</kie:width>
+            <kie:width>307</kie:width>
+            <kie:width>538</kie:width>
+            <kie:width>100</kie:width>
+            <kie:width>231</kie:width>
+            <kie:width>284</kie:width>
+            <kie:width>100</kie:width>
+            <kie:width>100</kie:width>
+            <kie:width>100</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3B9D506B-CA8F-4943-AF61-2993E70684DD">
+            <kie:width>50</kie:width>
+            <kie:width>100</kie:width>
+            <kie:width>200</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CCBB0ED3-4997-41CC-8C11-52A4C8DDDBB4">
+            <kie:width>200</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A8489917-0285-49E0-BCB0-5046E3876FD6">
+            <kie:width>200</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F26629C7-B5CF-414F-A53B-882E4501C071">
+            <kie:width>50</kie:width>
+            <kie:width>370</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_F3A05DDD-1A0A-4AB2-8B23-97173E005CF9" dmnElementRef="_F3A05DDD-1A0A-4AB2-8B23-97173E005CF9" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="113" y="165" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_FCD195E6-2CF7-4808-A2E9-48AC94A3B2F1" dmnElementRef="_FCD195E6-2CF7-4808-A2E9-48AC94A3B2F1" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="353" y="165" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_14B4D17E-9526-4C65-94F9-7DC0ADA5511E" dmnElementRef="_14B4D17E-9526-4C65-94F9-7DC0ADA5511E" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="516" y="44" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="dmnedge-drg-_CEEEF964-9CFA-469B-9E8D-7B009CEA3DC1-AUTO-TARGET" dmnElementRef="_CEEEF964-9CFA-469B-9E8D-7B009CEA3DC1">
+        <di:waypoint x="163" y="190"/>
+        <di:waypoint x="353" y="190"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_8318DF65-2F20-4B8D-BB13-E7946B68A7D0-AUTO-TARGET" dmnElementRef="_8318DF65-2F20-4B8D-BB13-E7946B68A7D0">
+        <di:waypoint x="566" y="69"/>
+        <di:waypoint x="403" y="165"/>
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

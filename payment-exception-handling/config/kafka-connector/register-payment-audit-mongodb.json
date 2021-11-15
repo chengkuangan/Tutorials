@@ -1,0 +1,20 @@
+{
+    "name": "audit-mongodb-sink",
+    "config": {
+        "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
+        "tasks.max": 1,
+        "topics": "payment.audit.events",
+        "connection.uri": "mongodb://audit:audit@audit-mongodb:27017",
+        "database": "audit",
+        "collection": "payment",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": false,
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": false,
+        "max.num.retries": 3,
+        "document.id.strategy": "com.mongodb.kafka.connect.sink.processor.id.strategy.PartialValueStrategy",
+        "document.id.strategy.partial.value.projection.list": "id",
+        "document.id.strategy.partial.value.projection.type": "AllowList",
+        "writemodel.strategy": "com.mongodb.kafka.connect.sink.writemodel.strategy.ReplaceOneBusinessKeyStrategy"
+    }
+}

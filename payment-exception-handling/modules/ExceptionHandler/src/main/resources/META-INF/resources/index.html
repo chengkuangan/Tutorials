@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>OPay Exception Handling</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="container" role="main">
+        <div class="jumbotron">
+            <h1>OPay Exception Handling</h1>
+            <p>Handle your payment exceptions with the power of event-based workflow.</p>
+        </div>
+        <div class="page-header">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Exception Cases</h1>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Transaction Id</th>
+                                <th>Account Number</th>
+                                <th>Recipient Account Number</th>
+                                <th>Payment Type</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <!--
+                                <th>Review Status</th>
+                                <th>Approval Status</th>
+                                -->
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="content">
+                            <!-- filled using Ajax -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script>
+
+    $(document).ready(function () {
+        load();
+        initModal();
+    });
+
+
+    function load() {
+        $("#content").children().remove();
+        // http://localhost:8080/handle_exception/
+        $.getJSON("/handle_exception", function (data) {
+            $.each(data, function (key, val) {
+                $(
+                    "<tr><td>" + val.exception.id + "</td>" +
+                    "<td>" + val.exception.sourceAccountNo + "</td>" +
+                    "<td>" + val.exception.recipientAccountNo + "</td>" +
+                    "<td>" + val.exception.paymentType + "</td>" +
+                    "<td>" + val.exception.amount + "</td>" +
+                    "<td>" + val.exception.status + "</td>" +
+                    //"<td>" + (val.exception.reviewed && val.exception.reviewed ? "Yes" : "No") + "</td>" +
+                    //"<td>" + (val.exception.approved && val.exception.approved ? "Yes" : "No") + "</td>" +
+                    "<td>" +
+                    "<button class='btn btn-primary btn-sm' " +
+                    "data-toggle='modal' " +
+                    "data-target='#detailsModal' " +
+                    "data-transactionid='" + val.exception.id + "' " +
+                    "data-sourceaccountno='" + val.exception.sourceAccountNo + "' " +
+                    "data-recipientaccountno='" + val.exception.recipientAccountNo + "' " +
+                    "data-paymenttype='" + val.exception.paymentType + "' " +
+                    "data-amount='" + val.exception.amount + "' " +
+                    "data-status='" + val.exception.status + "' " +
+                    "data-recipientreference='" + val.exception.recipientReference + "' " +
+                    "data-responsemessages='" + val.exception.responseMessages + "' " +
+                    "data-messageid='" + val.exception.messageId + "' " +
+                    "data-eventsources='" + val.exception.eventSources + "' " +
+                    "data-createdtimestamp='" + (val.exception.createdTimestamp ? val.exception.createdTimestamp : " ") + "' " +
+                    "data-coreprocessedtimestamp='" + (val.exception.coreProcessedTimestamp ? val.exception.coreProcessedTimestamp : " ") + "' " +
+                    "data-audittimestamp='" + (val.exception.auditTimestamp ? val.exception.auditTimestamp : " ") + "' " +
+                    "data-responsereceivedtimestamp='" + (val.exception.responseReceivedTimestamp ? val.exception.responseReceivedTimestamp : " ") + "' " +
+                    "data-eventtimestamp='" + (val.exception.eventTimestamp ? val.exception.eventTimestamp : " ") + "' " +
+                    "data-id='" + val.id + "'>" +
+                    "   <span>Details</span>" +
+                    "</button>&nbsp;" +
+                    "<button class='btn btn-primary btn-sm' " +
+                    "data-toggle='modal' " +
+                    "data-target='#tasksModal' " +
+                    "data-transactionid='" + val.exception.id + "' " +
+                    "data-id='" + val.id + "'>" +
+                    "   <span>Tasks</span>" +
+                    "</button>&nbsp;" +
+                    "</td>" +
+                    "</tr>"
+                ).appendTo("#content");
+
+            });
+            //initCallbacks();
+        });
+    }
+
+    function initModal() {
+        $("#detailsModal").on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            var id = button.data('id');
+            var modal = $(this);
+            modal.find('.modal-title').text("Details of exception for " + button.data("transactionid"));
+            modal.find('#transactionId').val(button.data("transactionid"));
+            modal.find('#recipientAccountNo').val(button.data("recipientaccountno"));
+            modal.find('#sourceAccountNo').val(button.data("sourceaccountno"));
+            modal.find('#amount').val(button.data("amount"));
+            modal.find('#paymentType').val(button.data("paymenttype"));
+            modal.find('#eventSources').val(button.data("eventsources"));
+            modal.find('#createdTimestamp').val(button.data("createdtimestamp"));
+            modal.find('#coreProcessedTimestamp').val(button.data("coreprocessedtimestamp"));
+            modal.find('#auditTimestamp').val(button.data("audittimestamp"));
+            modal.find('#eventTimestamp').val(button.data("eventtimestamp"));
+            modal.find('#responseMessages').val(button.data("responsemessages"));
+            modal.find('#Status').val(button.data("status"));
+        })
+
+        $("#tasksModal").on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            var id = button.data('id');
+            console.log("id = " + id);
+            var modal = $(this);
+            modal.find('.modal-title').text("Tasks for " + button.data("transactionid"));
+
+
+
+            $("#taskscontent").children().remove();
+            $("#tasksButton").children().remove();
+
+            var buttons = "";
+
+            //http://localhost:8080/handle_exception/72ae7bc2-c61c-454a-8103-1b3ad0f10def/tasks
+            $.getJSON("/handle_exception/" + id + "/tasks", function (data) {
+                $.each(data, function (index, task) {
+                    let taskId = task.id;
+                    let taskName = task.name;
+                    let element = ""; //"<tr><td>" + taskName + "</td><td>";
+                    if (task.phase === 'active') {
+                        if (taskName === 'ApproveExceptionTask') {
+                            element += "<div class='form-group'><h3>Exception Approval</h3></div><div class='form-group'><label for='comment'>Comment</label> <input type='text' class='form-control' id='comment' name='comment' required></div>";
+                            buttons = "<button class='btn btn-primary btn-sm' onclick=\"completeTask('" + id + "', '" + taskName + "', '" + taskId + "', true)\" data-dismiss=\"modal\" <span>Approve</span> </button>" +
+                                "<button class='btn btn-primary btn-sm' onclick=\"completeTask('" + id + "', '" + taskName + "', '" + taskId + "', false)\" data-dismiss=\"modal\" <span>Reject</span> </button>" +
+                                "<button type='button' class='btn btn-primary btn-sm' data-dismiss='modal'>Close</button>";
+                        }
+                    }
+                    element += "</td></tr>";
+                    $(element).appendTo("#taskscontent");
+                    $(buttons).appendTo("#tasksButton");
+                });
+            })
+
+        })
+    }
+
+    function completeTask(id, taskName, taskId, status) {
+
+        //http://<host:port>/approvals/<process instance id>/<task name>/<task instance id>
+        //http://localhost:8080/handle_exception/72ae7bc2-c61c-454a-8103-1b3ad0f10def/ReviewExceptionTask/514c70d4-7f50-4f4a-84de-a9d734083145
+        //http://localhost:8080/handle_exception/b47b3af2-a3cb-4457-bcfa-2a0d61228f7a/ApproveExceptionTask/d83a1c6b-4512-4221-9665-3bceb22b45a6?user=jdoe'
+        var comment = $("#comment").val();
+
+        var eData = {
+            approved: status,
+            reason: comment
+        };
+
+        $.ajax({
+            url: "/handle_exception/" + id + "/" + taskName + "/" + taskId + "/phases/complete?user=jdoe",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(eData),
+            success: function (data, textStatus, jQxhr) {
+                console.log("Updated completed.");
+                load();
+            },
+            error: function (jqXhr, textStatus, errorThrown) {
+                console.log(errorThrown);
+            }
+        });
+
+        /*
+        $.ajax({
+            type: "POST",
+            url: "/handle_exception/" + id + "/" + taskName + "/" + taskId + "/comments?user=jdoe",
+            data: comment,
+            contentType: 'text/plain',
+            success: function (data, textStatus, jQxhr) {
+                console.log("Comment updated.");
+                $.ajax({
+                    url: "/handle_exception/" + id + "/" + taskName + "/" + taskId + "/phases/complete?user=jdoe",
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(eData),
+                    success: function (data, textStatus, jQxhr) {
+                        console.log("Updated completed.");
+                        load();
+                    },
+                    error: function (jqXhr, textStatus, errorThrown) {
+                        console.log(errorThrown);
+                    }
+                });
+            },
+            error: function (jqXhr, textStatus, errorThrown) {
+                console.log(errorThrown);
+            }
+        });
+        */
+    }
+</script>
+
+
+
+
+<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title" id="detailsModalTitle">Details of an exception</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6 col-xs-6">
+                            <div class="form-group">
+                                <h3>Transaction</h3>
+                            </div>
+                            <div class="form-group">
+                                <label for="transactionId">Transaction Id</label> <input type="text"
+                                    class="form-control" id="transactionId" name="transactionId" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="sourceAccountNo">Account Number</label> <input type="text"
+                                    class="form-control" id="sourceAccountNo" name="sourceAccountNo" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="recipientAccountNo">Recipient Account</label> <input type="text"
+                                    class="form-control" id="recipientAccountNo" name="recipientAccountNo" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="amount">Amount</label> <input type="text" class="form-control" id="amount"
+                                    name="amount" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="amount">Type</label> <input type="text" class="form-control"
+                                    id="paymentType" name="paymentType" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6 col-xs-6">
+                            <div class="form-group">
+                                <h3>Exception</h3>
+                            </div>
+                            <div class="form-group">
+                                <label for="Status">Status</label> <input type="text" class="form-control" id="Status"
+                                    name="Status" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="responseMessages">Response Messages</label> <textarea
+                                    class="form-control" id="responseMessages" name="responseMessages" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6 col-xs-6">
+                            <div class="form-group">
+                                <h3>Audit Information</h3>
+                            </div>
+                            <div class="form-group">
+                                <label for="eventSources">Event Source</label> <input type="text" class="form-control"
+                                    id="eventSources" name="eventSources" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="createdTimestamp">Created Timestamp</label> <input type="text"
+                                    class="form-control" id="createdTimestamp" name="createdTimestamp" readonly>
+                            </div>
+                            <!--
+                            <div class="form-group">
+                                <label for="coreProcessedTimestamp">Processed Timestamp</label> <input type="text"
+                                    class="form-control" id="coreProcessedTimestamp" name="coreProcessedTimestamp"
+                                    readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="auditTimestamp">Audit Timestamp</label> <input type="text"
+                                    class="form-control" id="auditTimestamp" name="auditTimestamp" readonly>
+                            </div>
+                            -->
+                            <div class="form-group">
+                                <label for="eventTimestamp">Event Timestamp</label> <input type="text"
+                                    class="form-control" id="eventTimestamp" name="eventTimestamp" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="tasksModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title" id="detailsModalTitle">Details of an exception</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6 col-xs-6" id="taskscontent">
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer" id="tasksButton">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

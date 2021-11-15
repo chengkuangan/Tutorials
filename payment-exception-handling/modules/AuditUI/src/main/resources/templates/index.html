@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{title}</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    
+
+</head>
+<body>
+
+<div class="container">
+
+    <h2>{title}</h2>
+    <br>
+    <table id="content-table" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>Transaction Id</th>
+                <th>Payload</th>
+                <th>Timestamp</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        
+    </table>
+</div>
+</body>
+
+<script>
+
+    
+    $(document).ready(function () {
+        initTable();
+        initModal();
+        
+    });
+
+    function initModal(){
+        $("#detailsModal").on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var modal = $(this);
+            //console.log("here ...");
+            //modal.find('.modal-title').text("Details of audit for " + button.data("transactionid"));
+            let audits = button.data("auditEntries");
+            //console.log("data = " + audits);
+            //let audits = JSON.parse(button.data("auditEntries"));
+            //console.log("audits = " + JSON.stringify(audits.auditEntries));
+            const rowClasses = ["row-odd", "row-even"];
+            let i = 0;
+            $("#audit-content").empty();
+            audits.auditEntries.forEach(
+                function(item){
+                    let s = "<tr class='" + rowClasses[i%2] + "'><td style='padding:5px'><strong>Status: </strong>" + item.status + "</td></tr>";
+                    s += "<tr class='" + rowClasses[i%2] + "'><td style='padding:5px'><strong>Timestamp: </strong>" + item.eventTimestamp + "</td></tr>";
+                    s += "<tr class='" + rowClasses[i%2] + "'><td style='padding:5px'><strong>Source :</strong> " + item.eventSource + "</td><tr>";
+                    s += "<tr class='" + rowClasses[i++%2] + "'><td style='padding:5px'><strong>Message :</strong> " + (typeof item.responseMessages !== 'undefined' ? item.responseMessages : "N/A") + "</td></tr>";
+                    $("#audit-content").append(s);
+                }
+            );
+        });
+    }
+
+    function initTable(){
+        let table = $('#content-table').DataTable({
+            ajax: {
+                url: '/audit/all',
+                dataSrc: ''
+        },
+        paging: false,
+        dom: 'Bfrtip',
+        buttons: [
+            'csv', 'excel', 'pdf', 'print',
+            {
+                text: 'Reload',
+                action: function ( e, dt, node, config ) {
+                    window.location.href='/';
+            }
+        }
+        ],
+        /*
+        initComplete: function() {
+            //let api = this.api();
+            setInterval(function() {
+                window.location.href='/';
+                //api.ajax.reload();
+            }, 5000);
+        },
+        */
+        columns: [
+            {
+                data: 'id'
+            },
+            {
+                data: null,
+                render: function(data, type, row, meta) {
+                    let s = "Recipient: " + row.payload.recipientAccountNo + "<br>";
+                    s += "Source: " + row.payload.sourceAccountNo + "<br>";
+                    s += "Amount: $" + row.payload.amount.toFixed(2) + "<br>";
+                    s += "Reference: " + row.payload.recipientReference + "<br>";
+                    return s;
+                }
+            },
+            {
+                data: 'eventTimestamp'
+            },
+            {
+                data: null,
+                render: function(data, type, row, meta) {
+                    //console.log("row = " + row);
+                    let s = "<button class='btn btn-primary btn-sm' id='row_" + meta.row + "'" +
+                            "data-toggle='modal' " +
+                            "data-target='#detailsModal' " +
+                            "   <span>Details</span>" +
+                            "</button>";
+                    //console.log("load table -> details -> here: meta.row = " + meta.row + ", data = " + JSON.stringify(data));
+                    $("#row_" + meta.row).data("auditEntries", data);
+                    //console.log("auditEntries = " + $("#row_" + meta.row).data("auditEntries"));
+                    return s;
+                }
+            }
+            ]
+        });
+
+    }
+</script>
+
+<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title" id="detailsModalTitle">Audit Entries</h4>
+            </div>
+            <div class="modal-body">
+                <table class="display nowrap" width="100%">
+                    <thead><tr><th></th></tr></thead>
+                    <tbody id="audit-content"></tbody>
+                </table>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: infinispan
+  name: infinispan
+spec:
+  ports:
+  - name: tcp
+    port: 11222
+    protocol: TCP
+    targetPort: 11222
+  selector:
+    app: infinispan
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: infinispan
+data:
+  infinispan.xml: |
+    <infinispan xmlns='urn:infinispan:config:10.0' xsi:schemaLocation='urn:infinispan:config:10.0 http://www.infinispan.org/schemas/infinispan-config-10.0.xsd                             urn:infinispan:server:10.0 http://www.infinispan.org/schemas/infinispan-server-10.0.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+      <cache-container name="default"/>
+      <server xmlns='urn:infinispan:server:10.0'>
+        <interfaces>
+          <interface name='public'>
+            <inet-address value='${infinispan.bind.address:0.0.0.0}'/>
+          </interface>
+        </interfaces>
+        <socket-bindings default-interface='public' port-offset='0'>
+          <socket-binding name='default' port='11222'/>
+        </socket-bindings>
+        <security>
+          <security-realms>
+            <security-realm name='default'>
+              <properties-realm groups-attribute='Roles'>
+                <user-properties path='users.properties' relative-to='infinispan.server.config.path'/>
+                <group-properties path='groups.properties' relative-to='infinispan.server.config.path'/>
+              </properties-realm>
+            </security-realm>
+          </security-realms>
+        </security>
+        <endpoints socket-binding='default' security-realm='default'>
+          <hotrod-connector name="hotrod"/>
+          <rest-connector name="rest"/>
+        </endpoints>
+      </server>
+    </infinispan>
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: infinispan
+    version: 12.1.7.Final
+  name: infinispan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: infinispan
+  template:
+    metadata:
+      labels:
+        app: infinispan
+        version: 12.1.7.Final
+    spec:
+      containers:
+      - env:
+        image: infinispan/server:12.1.7.Final
+        imagePullPolicy: IfNotPresent
+        name: infinispan
+        command: ["/opt/infinispan/bin/server.sh"]
+        args: ["-c", "/opt/infinispan/server/conf/demo/infinispan.xml"]
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 11222
+          timeoutSeconds: 300
+        readinessProbe:
+          httpGet:
+            path: /rest/v2/cache-managers/default/health/status
+            port: 11222
+            scheme: HTTP
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        ports:
+        - containerPort: 11222
+          protocol: TCP
+        volumeMounts:
+        - name: config-volume
+          mountPath: /opt/infinispan/server/conf/demo
+      restartPolicy: Always
+      volumes:
+      - name: config-volume
+        configMap:
+            name: infinispan
+  test: false

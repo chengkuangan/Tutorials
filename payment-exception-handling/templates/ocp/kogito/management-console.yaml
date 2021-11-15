@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: management-console
+  name: management-console
+spec:
+  ports:
+  - name: tcp
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: management-console
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: management-console
+  name: management-console
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: management-console
+    version: 1.12.0
+  name: management-console
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: management-console
+  template:
+    metadata:
+      labels:
+        app: management-console
+        version: 1.12.0
+    spec:
+      containers:
+      - env:
+        - name: KOGITO_DATAINDEX_HTTP_URL
+          value: http://dataindex:8080/graphql
+        - name: KOGITO_MANAGEMENT_CONSOLE_PROPS
+          value: -Dkogito.consoles.keycloak.config.url=http://keycloak:8080/auth -Dkogito.consoles.keycloak.config.realm:kogito -Dkogito.consoles.keycloak.config.client-id:kogito-console-quarkus -Dkogito.consoles.keycloak.config.health-check-url=http://keycloak:8080/auth/realms/kogito/.well-known/openid-configuration -Dkogito.svg.folder.path=/home/kogito/data/svg
+        image: quay.io/kiegroup/kogito-management-console:latest
+        imagePullPolicy: IfNotPresent
+        name: management-console
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /home/kogito/data/svg
+          name: management-console
+      restartPolicy: Always
+      volumes:
+      - name: management-console
+        persistentVolumeClaim:
+          claimName: management-console
+  test: false

@@ -1,0 +1,196 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: mongodb
+  annotations:
+    openshift.io/display-name: OPay Postgres Database
+    description: Deploy Opay Postgres Database
+    tags: opay, mongodb
+    iconClass: icon-rh-openjdk
+    openshift.io/long-description: This template deploy ${APPLICATION_NAME} application for OpenShift platform.
+    openshift.io/provider-display-name: Gan CK
+    openshift.io/documentation-url: https://github.com/chengkuangan/pgwdemo
+    openshift.io/support-url: https://github.com/chengkuangan/pgwdemo
+    template.openshift.io/bindable: "false"
+message: "The following service(s) have been created in your project: ${APPLICATION_NAME}.\n\nFor more information about using this template, see https://github.com/chengkuangan/pgwdemo/README.md"
+labels:
+  template: ${APPLICATION_NAME}
+  app-group: ${APPLICATION_NAME}
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: ${APPLICATION_NAME}-mongodb
+      app-group: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}-mongodb
+  spec:
+    ports:
+    - name: tcp
+      port: 27017
+      protocol: TCP
+      targetPort: 27017
+    selector:
+      app: ${APPLICATION_NAME}-mongodb
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    labels:
+      app: ${APPLICATION_NAME}-mongodb
+      version: ${APP_VERSION}
+    name: ${APPLICATION_NAME}-mongodb
+  spec:
+    replicas: 1
+    strategy:
+      type: Recreate
+    selector:
+      matchLabels:
+        app: ${APPLICATION_NAME}-mongodb
+      name: ${APPLICATION_NAME}-mongodb
+    template:
+      metadata:
+        labels:
+          app: ${APPLICATION_NAME}-mongodb
+          version: ${APP_VERSION}
+#        annotations:
+#          sidecar.istio.io/inject: "true"
+      spec:
+        containers:
+        - env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                key: mongodb.user
+                name: ${APPLICATION_NAME}
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: mongodb.password
+                name: ${APPLICATION_NAME}
+          - name: MONGODB_ADMIN_USER
+            valueFrom:
+              secretKeyRef:
+                key: mongodb.user
+                name: ${APPLICATION_NAME}
+          - name: MONGODB_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: mongodb.password
+                name: ${APPLICATION_NAME}      
+          - name: MONGODB_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                key: mongodb.database
+                name: ${APPLICATION_NAME}
+          image: docker.io/chengkuan/mongodb-5.0.2:latest
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 27017
+            timeoutSeconds: 300
+          name: ${APPLICATION_NAME}-mongodb
+          ports:
+          - containerPort: 27017
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - mongo
+              - localhost:27017/test
+              - --quiet
+            failureThreshold: 3
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 90
+          resources:
+            limits:
+              memory: 256Mi
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/lib/mongodb
+            name: ${APPLICATION_NAME}-mongodb-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: ${APPLICATION_NAME}-mongodb-data
+          persistentVolumeClaim:
+            claimName: ${APPLICATION_NAME}-mongodb
+    test: false
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    labels:
+      app: ${APPLICATION_NAME}-mongodb
+      app-group: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}-mongodb
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${MONGODB_VOLUME_CAPACITY}
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    labels:
+      app: ${APPLICATION_NAME}
+      app-group: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}
+  data:
+    mongodb.database: ${MONGODB_DATABASE}
+    mongodb.server.host: ${APPLICATION_NAME}-mongodb:27017
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: ${APPLICATION_NAME}
+      app-group: ${APPLICATION_NAME}
+      version: v1
+      template: ${APPLICATION_NAME}
+  data:
+    mongodb.password: ${MONGODB_PASSWORD}
+    mongodb.user: ${MONGODB_USER}
+parameters:
+- description: Application Name
+  displayName: Application Name
+  name: APPLICATION_NAME
+  value: audit
+  required: true
+- description: Database Name
+  displayName: Database Name
+  name: MONGODB_DATABASE
+  value: audit
+  required: true
+- description: Database User
+  displayName: Database User
+  name: MONGODB_USER
+  value: YXVkaXQ=
+  required: true
+- description: Database Password
+  displayName: Database Password
+  name: MONGODB_PASSWORD
+  value: YXVkaXQ=
+  required: true
+- description: Postgres Volume Capacity
+  displayName: Postgres Volume Capacity
+  name: MONGODB_VOLUME_CAPACITY
+  value: 1Gi
+  required: true
+- name: APP_VERSION
+  displayName: Application version
+  description: Application version label
+  value: v1
+  required": true

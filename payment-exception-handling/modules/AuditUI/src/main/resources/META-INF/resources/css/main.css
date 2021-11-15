@@ -1,0 +1,9 @@
+
+.newrow-highlight{
+    color: red;
+    font-weight: bolder;
+}
+
+.row-odd{
+    background-color: lightgray;
+}
