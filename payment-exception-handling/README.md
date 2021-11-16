@@ -1,4 +1,4 @@
-# Event Mesh Payment Exception Handling
+# Event-Driven Payment Exception Handling
 
 This provides demo on using [Kogito](https://kogito.kie.org/) workflow and decision service to showcase how to implement an event-based payment exception handling.
 
@@ -58,15 +58,19 @@ insert into customer.address (address1, address2, postcode, city, state, country
 
 ## How to navigate around the demo
 
-1. Refer the post here
+You can refer to the following post for more details.
 
-2. Refer the youtube here.
+[Event-Driven Payment Exceptions Handling Using Kogito](https://braindose.blog/2021/11/15/event-driven-payment-exceptions-kogito/)
+
+and the following Youtube video for the recorded demo:
+
+[![Youtube](https://img.youtube.com/vi/xLdiyJEEtHA/0.jpg)](https://www.youtube.com/watch?v=xLdiyJEEtHA)
 
 
 ## Additional references
 
 - [A True Atomic Microservices Implementation with Debezium to Ensure Data Consistency](https://braindose.blog/2021/09/13/true-atomic-microservices-debezium/)
-- 
+- [Modernise the Payment Platform With Event-Based Architecture](http://braindose.blog/2021/11/09/modernise-payment-platform-event-based/)
 
 ## Error while deploying the application modules 
 

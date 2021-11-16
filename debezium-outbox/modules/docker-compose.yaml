@@ -84,6 +84,7 @@ services:
      - core-postgres
      - kafka
     environment:
+     #- QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=update
      - QUARKUS_DEBEZIUM_OUTBOX_REMOVE_AFTER_INSERT=false
      - POSTGRES_HOST=core-postgres
      - POSTGRES_USER=core
