@@ -994,7 +994,7 @@ function deployKogitoCoreServices(){
     echo "--> Copying ./modules/ExceptionHandler/target/classes/META-INF/processSVG/*.svg to  ${LAST_CREATED_POD_NAME}:/home/kogito/data/svg/ "
     echo
     
-    oc cp ../modules/ExceptionHandler/target/classes/META-INF/processSVG/*.svg ${LAST_CREATED_POD_NAME}:/home/kogito/data/svg/ -n ${KOGITO_NAMESPACE}
+    oc cp ../tmp/modules/ExceptionHandler/target/classes/META-INF/processSVG/*.svg ${LAST_CREATED_POD_NAME}:/home/kogito/data/svg/ -n ${KOGITO_NAMESPACE}
 
     oc expose svc management-console -n ${KOGITO_NAMESPACE}
 
@@ -1224,14 +1224,14 @@ deployKafka
 ## --- Deploy databases
 deloyDatabases
 
-## --- adhoc to make sure the topic is created before the AuditLogAggregator is running.
-oc -n ${KAFKA_NAMESPACE} exec kafka-cluster-kafka-0 -it -- /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic exception.audit.events &
-
 ## --- Copy source directory and compile common modules
 compileCommon
 
 ## --- Deploy Kogito Core Services
 deployKogitoCoreServices
+
+## --- adhoc to make sure the topic is created before the AuditLogAggregator is running.
+oc -n ${KAFKA_NAMESPACE} exec kafka-cluster-kafka-0 -it -- /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic exception.audit.events &
 
 ## --- Deploy all apps modules
 deployAllModules
