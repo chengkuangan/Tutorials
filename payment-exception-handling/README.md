@@ -67,6 +67,57 @@ and the following Youtube video for the recorded demo:
 [![Youtube](https://img.youtube.com/vi/xLdiyJEEtHA/0.jpg)](https://www.youtube.com/watch?v=xLdiyJEEtHA)
 
 
+## Quick Demo Steps
+
+1. Find out the OpenShift domain name:
+    ```
+    $ oc get ingresses.config.openshift.io cluster -o json 2>/dev/null | jq -r .spec.domain
+    apps.cluster-9ql4r.9ql4r.sandbox732.opentlc.com
+    ```
+2. Query to verify the database records created for `core-service`
+
+    ```
+    $ oc exec $(oc get pod -l app=core-service -o jsonpath="{.items[0].metadata.name}") -- curl http://localhost:8080/core/casa/1-987654-1234-4569 -w "\n"
+    $ oc exec $(oc get pod -l app=core-service -o jsonpath="{.items[0].metadata.name}") -- curl http://localhost:8080/core/casa/1-234567-4321-9876 -w "\n"
+    ```
+
+2. Post a transaction
+
+    ```
+    # Replace the url with the correct domain name from previous command 
+
+    $ curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"recipientAccountNo": "1-987654-1234-4569","sourceAccountNo": "1-234567-4321-9876","amount": 50.00,"recipientReference": "Raspberry Pi 4 4GB"}' \
+    http://casa-service-opay-apps.apps.cluster-9ql4r.9ql4r.sandbox732.opentlc.com/casa -w "\n"
+    ```
+
+3. Review the transaction audit. 
+    Goto the OpenShift `admin console -> opay-apps (namespace) -> Networking -> Routes` and click on the `Location` for the `audit-ui`.
+
+    ```
+    # example using domain name from previous command 
+
+    http://audit-ui-opay-apps.apps.cluster-9ql4r.9ql4r.sandbox732.opentlc.com/
+    ```
+4. Post another transaction that violates the business rules:
+    ```
+    # Replace the url with the correct domain name from previous command
+
+    $ curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"recipientAccountNo": "1-987654-1234-4569","sourceAccountNo": "1-234567-4321-9876","amount": 600000.00,"recipientReference": "Tesla"}' \
+    http://casa-service-opay-apps.apps.cluster-9ql4r.9ql4r.sandbox732.opentlc.com/casa -w "\n"
+    
+    ```
+5. Navigate to the `Opay Exception Handling` url to view the exceptions. You can find out the url at the admin console `Networking -> Routes`
+    
+    ```
+    # Replace the url with the correct domain name from previous command
+
+    http://exception-handler-opay-apps.apps.cluster-9ql4r.9ql4r.sandbox732.opentlc.com/
+    ```
+
 ## Additional references
 
 - [A True Atomic Microservices Implementation with Debezium to Ensure Data Consistency](https://braindose.blog/2021/09/13/true-atomic-microservices-debezium/)
