@@ -106,7 +106,7 @@ and the following Youtube video for the recorded demo:
     $ curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"recipientAccountNo": "1-987654-1234-4569","sourceAccountNo": "1-234567-4321-9876","amount": 600000.00,"recipientReference": "Tesla"}' \
-    http://casa-service-opay-apps.apps.cluster-9ql4r.9ql4r.sandbox732.opentlc.com/casa -w "\n"
+    http://casa-service-opay-apps.${APPS_DOMAIN}/casa -w "\n"
     
     ```
 5. Navigate to the `Opay Exception Handling` url to view the exceptions. You can find out the url at the admin console `Networking -> Routes`
