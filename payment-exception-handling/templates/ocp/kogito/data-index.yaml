@@ -60,7 +60,7 @@ spec:
           value: kafka:9092
         - name: KOGITO_DATA_INDEX_PROPS
           value: -Dkogito.protobuf.folder=/home/kogito/data/protobufs/
-        image: quay.io/kiegroup/kogito-data-index-infinispan:latest
+        image: quay.io/kiegroup/kogito-data-index-infinispan:1.12.0
         imagePullPolicy: IfNotPresent
         name: data-index
         ports:

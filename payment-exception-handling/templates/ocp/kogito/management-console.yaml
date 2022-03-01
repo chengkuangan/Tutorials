@@ -56,7 +56,7 @@ spec:
           value: http://dataindex:8080/graphql
         - name: KOGITO_MANAGEMENT_CONSOLE_PROPS
           value: -Dkogito.consoles.keycloak.config.url=http://keycloak:8080/auth -Dkogito.consoles.keycloak.config.realm:kogito -Dkogito.consoles.keycloak.config.client-id:kogito-console-quarkus -Dkogito.consoles.keycloak.config.health-check-url=http://keycloak:8080/auth/realms/kogito/.well-known/openid-configuration -Dkogito.svg.folder.path=/home/kogito/data/svg
-        image: quay.io/kiegroup/kogito-management-console:latest
+        image: quay.io/kiegroup/kogito-management-console:1.12.0
         imagePullPolicy: IfNotPresent
         name: management-console
         ports:

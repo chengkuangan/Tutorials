@@ -41,7 +41,7 @@ spec:
           value: http://dataindex:8080/graphql
         - name: KOGITO_TASK_CONSOLE_PROPS
           value: -Dkogito.consoles.keycloak.config.url=http://keycloak:8080/auth -Dkogito.consoles.keycloak.config.health-check-url=http://keycloak:8080/auth/realms/kogito/.well-known/openid-configuration
-        image: quay.io/kiegroup/kogito-task-console:latest
+        image: quay.io/kiegroup/kogito-task-console:1.12.0
         imagePullPolicy: IfNotPresent
         name: task-console
         ports:

@@ -71,8 +71,7 @@ and the following Youtube video for the recorded demo:
 
 1. Find out the OpenShift domain name:
     ```
-    $ oc get ingresses.config.openshift.io cluster -o json 2>/dev/null | jq -r .spec.domain
-    apps.cluster-9ql4r.9ql4r.sandbox732.opentlc.com
+    $ APPS_DOMAIN=$(oc get ingresses.config.openshift.io cluster -o json 2>/dev/null | jq -r .spec.domain)
     ```
 2. Query to verify the database records created for `core-service`
 
@@ -89,7 +88,7 @@ and the following Youtube video for the recorded demo:
     $ curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"recipientAccountNo": "1-987654-1234-4569","sourceAccountNo": "1-234567-4321-9876","amount": 50.00,"recipientReference": "Raspberry Pi 4 4GB"}' \
-    http://casa-service-opay-apps.apps.cluster-9ql4r.9ql4r.sandbox732.opentlc.com/casa -w "\n"
+    http://casa-service-opay-apps.${APPS_DOMAIN}/casa -w "\n"
     ```
 
 3. Review the transaction audit. 
