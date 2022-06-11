@@ -1,0 +1,4 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Sat Jun 11 15:29:08 MYT 2022
+jandex-maven-plugin-1.0.7.jar>redhat-ga-repository=
+jandex-maven-plugin-1.0.7.pom>redhat-ga-repository=

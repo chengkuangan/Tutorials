@@ -1,0 +1,4 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Sat Jun 11 15:28:49 MYT 2022
+commons-logging-jboss-logging-1.0.0.Final.jar>redhat-ga-repository=
+commons-logging-jboss-logging-1.0.0.Final.pom>redhat-ga-repository=

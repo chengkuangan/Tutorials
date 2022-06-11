@@ -1,0 +1,4 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Sat Jun 11 15:28:49 MYT 2022
+jakarta.inject-api-1.0.jar>redhat-ga-repository=
+jakarta.inject-api-1.0.pom>redhat-ga-repository=

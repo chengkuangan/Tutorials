@@ -1,0 +1,9 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Sat Jun 11 15:33:16 MYT 2022
+https\://maven.repository.redhat.com/ga/.error=
+https\://maven.repository.redhat.com/ga/.lastUpdated=1654932793976
+https\://packages.confluent.io/maven/.error=
+https\://packages.confluent.io/maven/.lastUpdated=1654932794955
+https\://repo.maven.apache.org/maven2/.lastUpdated=1654932796494
+https\://s01.oss.sonatype.org//content/groups/public/.error=
+https\://s01.oss.sonatype.org//content/groups/public/.lastUpdated=1654932796122

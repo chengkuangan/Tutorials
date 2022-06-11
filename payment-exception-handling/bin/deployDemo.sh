@@ -1128,7 +1128,7 @@ function customDeployment(){
     loadDotEnv
     printVariables
     showConfirmToProceed
-    compileCommon
+    #compileCommon
     deployAllModules
     exit 0
   fi

@@ -132,7 +132,8 @@ and the following Youtube video for the recorded demo:
 
     1. Deploy the application modules using the following command. Previously successfull deloyed modules will be skipped. 
     
-        Run this command multiple times until all apps modules are successfully deployed.
+        Run this com
+        mand multiple times until all apps modules are successfully deployed.
    
     ```cmd
     ./deployDemo.sh -m apps

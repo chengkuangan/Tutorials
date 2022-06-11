@@ -1,0 +1,4 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Sat Jun 11 15:28:49 MYT 2022
+commons-codec-1.11.jar>redhat-ga-repository=
+commons-codec-1.11.pom>redhat-ga-repository=

@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-jaxrs-all</artifactId>
+        <version>4.7.0.Final</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <name>RESTEasy Providers</name>
+    <description/>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>providers-pom</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>jaxb</module>
+        <module>fastinfoset</module>
+        <module>jackson2</module>
+        <module>json-p-ee7</module>
+        <module>json-binding</module>
+        <module>resteasy-atom</module>
+        <module>multipart</module>
+        <module>resteasy-html</module>
+        <module>resteasy-validator-provider</module>
+    </modules>
+</project>

@@ -1,0 +1,4 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Sat Jun 11 15:29:42 MYT 2022
+maven-install-plugin-2.4.jar>redhat-ga-repository=
+maven-install-plugin-2.4.pom>redhat-ga-repository=
