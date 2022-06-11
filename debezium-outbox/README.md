@@ -13,10 +13,10 @@ You can refers to the complete tutorial at [A True Atomic Microservices Implemen
 Install the Common and CommonOutbox into local maven repository:
 
 ```
-mvn clean install -pl Commmon
+mvn clean install -pl Common
 ```
 ```
-mvn clean install -pl CommmonOutbox
+mvn clean install -pl CommonOutbox
 ```
 
 Run the following mvn command in the modules directory:
