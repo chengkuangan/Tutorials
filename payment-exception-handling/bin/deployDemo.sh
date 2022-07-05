@@ -286,16 +286,16 @@ function preRequisitionCheck(){
         exit 0
     fi
 
-    oc get sub --all-namespaces -o custom-columns=NAME:.metadata.name | grep 'amq-streams'
-    if [ $? -ne 0 ]; then
-        echo
-        printWarning "Please ensure you have installed the following Operators ... "
-        echo
-        echo "   AMQ Streams"
-        echo
-        removeTempDirs
-        exit 0
-    fi
+    #oc get sub --all-namespaces -o custom-columns=NAME:.metadata.name | grep 'amq-streams'
+    #if [ $? -ne 0 ]; then
+    #    echo
+    #    printWarning "Please ensure you have installed the following Operators ... "
+    #    echo
+    #    echo "   AMQ Streams"
+    #    echo
+    #    removeTempDirs
+    #    exit 0
+    #fi
 }
 
 function showConfirmToProceed(){

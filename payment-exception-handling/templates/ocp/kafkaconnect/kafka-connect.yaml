@@ -37,6 +37,12 @@ spec:
     producer.interceptor.classes: io.opentracing.contrib.kafka.TracingProducerInterceptor
     rest.advertised.port: 8080
     rest.port: 8080
+  #### BEGIN --- Uncomment this section to enable docker image pull secret  
+  #template:
+  #  pod:
+  #    imagePullSecrets:
+  #      - name: dockerio
+  #### --- END
   metrics:
     lowercaseOutputName: true
     lowercaseOutputLabelNames: true

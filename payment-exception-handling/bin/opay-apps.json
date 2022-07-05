@@ -1,0 +1,65 @@
+{
+    "apiVersion": "v1",
+    "kind": "Namespace",
+    "metadata": {
+        "annotations": {
+            "openshift.io/description": "",
+            "openshift.io/display-name": "",
+            "openshift.io/requester": "opentlc-mgr",
+            "openshift.io/sa.scc.mcs": "s0:c30,c5",
+            "openshift.io/sa.scc.supplemental-groups": "1000880000/10000",
+            "openshift.io/sa.scc.uid-range": "1000880000/10000"
+        },
+        "creationTimestamp": "2022-06-21T07:27:52Z",
+        "deletionTimestamp": "2022-06-21T07:28:48Z",
+        "labels": {
+            "kubernetes.io/metadata.name": "opay-apps"
+        },
+        "name": "opay-apps",
+        "resourceVersion": "68413",
+        "uid": "32d07d2f-26e4-4d8e-9a32-4243735fa41c"
+    },
+    "spec": {
+        "finalizers": []
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastTransitionTime": "2022-06-21T07:28:53Z",
+                "message": "All resources successfully discovered",
+                "reason": "ResourcesDiscovered",
+                "status": "False",
+                "type": "NamespaceDeletionDiscoveryFailure"
+            },
+            {
+                "lastTransitionTime": "2022-06-21T07:28:53Z",
+                "message": "All legacy kube types successfully parsed",
+                "reason": "ParsedGroupVersions",
+                "status": "False",
+                "type": "NamespaceDeletionGroupVersionParsingFailure"
+            },
+            {
+                "lastTransitionTime": "2022-06-21T07:29:32Z",
+                "message": "Failed to delete all resource types, 1 remaining: unexpected items still remain in namespace: opay-apps for gvr: /v1, Resource=pods",
+                "reason": "ContentDeletionFailed",
+                "status": "True",
+                "type": "NamespaceDeletionContentFailure"
+            },
+            {
+                "lastTransitionTime": "2022-06-21T07:28:53Z",
+                "message": "Some resources are remaining: persistentvolumeclaims. has 1 resource instances, pods. has 1 resource instances",
+                "reason": "SomeResourcesRemain",
+                "status": "True",
+                "type": "NamespaceContentRemaining"
+            },
+            {
+                "lastTransitionTime": "2022-06-21T07:28:53Z",
+                "message": "Some content in the namespace has finalizers remaining: kubernetes.io/pvc-protection in 1 resource instances",
+                "reason": "SomeFinalizersRemain",
+                "status": "True",
+                "type": "NamespaceFinalizersRemaining"
+            }
+        ],
+        "phase": "Terminating"
+    }
+}

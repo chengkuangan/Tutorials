@@ -2287,6 +2287,10 @@ spec:
         app: keycloak
         version: 15.0.1
     spec:
+    #### BEGIN --- Uncomment this section to enable docker image pull secret
+    #  imagePullSecrets:
+    #    - name: dockerio
+    #### --- END
       containers:
       - env:
         - name: KEYCLOAK_USER

@@ -122,6 +122,56 @@ and the following Youtube video for the recorded demo:
 - [A True Atomic Microservices Implementation with Debezium to Ensure Data Consistency](https://braindose.blog/2021/09/13/true-atomic-microservices-debezium/)
 - [Modernise the Payment Platform With Event-Based Architecture](http://braindose.blog/2021/11/09/modernise-payment-platform-event-based/)
 
+## Error while pulling images from Docker Hub
+
+This is most probably due to the Docker [image pull limit](https://www.docker.com/increase-rate-limits/) has been exceeded. You need to create the following image pull secret in the `opay-apps` and `opay-kogito` projects.
+
+1. Remove all the failed deployments by deleting the projects.
+
+    ```
+    oc delete project opay-apps
+    oc delete project opay-kogito
+    oc delete project opay-strimzi
+    ```
+
+2. Pre-create the project instead of letting the `deployDemo.sh` to do it.
+
+    ```
+    oc delete new-project opay-apps
+    oc delete new-project opay-kogito
+    oc delete new-project opay-strimzi
+    ```
+    > **Important**: Make sure the existing projects are all deleted before proceed to create the new ones.
+
+3. Create the following image pull secret in `opay-apps` and `opay-kogito`. Replace the `user_name` and `password`
+
+    ```
+    oc create secret docker-registry dockerio \
+        --docker-server=docker.io \
+        --docker-username=<user_name> \
+        --docker-password=<password> \
+        --docker-email=<email>
+    ```
+
+4. Modify the existing `yaml` files to enable the image pull secret.
+    
+    - [mongodb-templates.yaml](templates/ocp/db/mongodb-templates.yaml)
+    - [postgresql-templates.yaml](templates/ocp/db/postgresql-templates.yaml)
+    - [kafka-connect.yaml](templates/ocp/kafkaconnect/kafka-connect.yaml)
+    - [infinispan.yaml](templates/ocp/kogito/infinispan.yaml)
+    - [keycloak.yaml](templates/ocp/kogito/keycloak.yaml)
+
+    Look for the following and uncomment to enable image pull secret
+
+    ```
+    #### BEGIN --- Uncomment this section to enable docker image pull secret
+    #  imagePullSecrets:
+    #    - name: dockerio
+    #### --- END
+    ```
+    
+5. Proceed to deploy demo using `deployDemo.sh`
+
 ## Error while deploying the application modules 
 
 - If the error caused by `java.io.IOException: Pipe closed`, it is a known issue with Quarkus Openshift plugin. Refer the reported issued at [OpenShift: Annoying Random Issue when deploying into OpenShift #16968](https://github.com/quarkusio/quarkus/issues/16968). This is a random error where the connection closed too early during the deployment.

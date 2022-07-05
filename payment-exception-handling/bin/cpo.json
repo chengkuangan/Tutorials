@@ -1,0 +1,278 @@
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"openshift-sdn\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.129.2.38\"\n    ],\n    \"default\": true,\n    \"dns\": {}\n}]",
+            "k8s.v1.cni.cncf.io/networks-status": "[{\n    \"name\": \"openshift-sdn\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.129.2.38\"\n    ],\n    \"default\": true,\n    \"dns\": {}\n}]",
+            "openshift.io/generated-by": "OpenShiftNewApp",
+            "openshift.io/scc": "restricted"
+        },
+        "creationTimestamp": "2022-06-21T06:57:35Z",
+        "deletionGracePeriodSeconds": 30,
+        "deletionTimestamp": "2022-06-21T07:16:52Z",
+        "generateName": "customer-postgres-5cb4cd66f9-",
+        "labels": {
+            "app": "customer-postgres",
+            "pod-template-hash": "5cb4cd66f9",
+            "version": "v1"
+        },
+        "name": "customer-postgres-5cb4cd66f9-jm8td",
+        "namespace": "opay-apps",
+        "ownerReferences": [
+            {
+                "apiVersion": "apps/v1",
+                "blockOwnerDeletion": true,
+                "controller": true,
+                "kind": "ReplicaSet",
+                "name": "customer-postgres-5cb4cd66f9",
+                "uid": "14474b31-7e69-442c-b2d6-7984d7231a33"
+            }
+        ],
+        "resourceVersion": "63734",
+        "uid": "622b2712-edfc-40ad-8c86-bbe3413f48b8"
+    },
+    "spec": {
+        "containers": [
+            {
+                "env": [
+                    {
+                        "name": "POSTGRES_USER",
+                        "valueFrom": {
+                            "secretKeyRef": {
+                                "key": "postgres.user",
+                                "name": "customer"
+                            }
+                        }
+                    },
+                    {
+                        "name": "POSTGRES_PASSWORD",
+                        "valueFrom": {
+                            "secretKeyRef": {
+                                "key": "postgres.password",
+                                "name": "customer"
+                            }
+                        }
+                    },
+                    {
+                        "name": "PGPASSWORD",
+                        "valueFrom": {
+                            "secretKeyRef": {
+                                "key": "postgres.password",
+                                "name": "customer"
+                            }
+                        }
+                    }
+                ],
+                "image": "docker.io/chengkuan/postgres:14",
+                "imagePullPolicy": "IfNotPresent",
+                "livenessProbe": {
+                    "failureThreshold": 3,
+                    "initialDelaySeconds": 60,
+                    "periodSeconds": 10,
+                    "successThreshold": 1,
+                    "tcpSocket": {
+                        "port": 5432
+                    },
+                    "timeoutSeconds": 300
+                },
+                "name": "customer-postgres",
+                "ports": [
+                    {
+                        "containerPort": 5432,
+                        "protocol": "TCP"
+                    }
+                ],
+                "resources": {
+                    "limits": {
+                        "memory": "256Mi"
+                    },
+                    "requests": {
+                        "memory": "256Mi"
+                    }
+                },
+                "securityContext": {
+                    "capabilities": {
+                        "drop": [
+                            "KILL",
+                            "MKNOD",
+                            "SETGID",
+                            "SETUID"
+                        ]
+                    },
+                    "privileged": false,
+                    "runAsUser": 1000830000
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/var/lib/postgresql",
+                        "name": "customer-postgres-data"
+                    },
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-7chjd",
+                        "readOnly": true
+                    }
+                ]
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "imagePullSecrets": [
+            {
+                "name": "default-dockercfg-8mmcn"
+            }
+        ],
+        "nodeName": "ip-10-0-145-50.ap-southeast-1.compute.internal",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+            "fsGroup": 1000830000,
+            "seLinuxOptions": {
+                "level": "s0:c29,c9"
+            }
+        },
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoSchedule",
+                "key": "node.kubernetes.io/memory-pressure",
+                "operator": "Exists"
+            }
+        ],
+        "volumes": [
+            {
+                "name": "customer-postgres-data",
+                "persistentVolumeClaim": {
+                    "claimName": "customer-postgres"
+                }
+            },
+            {
+                "name": "kube-api-access-7chjd",
+                "projected": {
+                    "defaultMode": 420,
+                    "sources": [
+                        {
+                            "serviceAccountToken": {
+                                "expirationSeconds": 3607,
+                                "path": "token"
+                            }
+                        },
+                        {
+                            "configMap": {
+                                "items": [
+                                    {
+                                        "key": "ca.crt",
+                                        "path": "ca.crt"
+                                    }
+                                ],
+                                "name": "kube-root-ca.crt"
+                            }
+                        },
+                        {
+                            "downwardAPI": {
+                                "items": [
+                                    {
+                                        "fieldRef": {
+                                            "apiVersion": "v1",
+                                            "fieldPath": "metadata.namespace"
+                                        },
+                                        "path": "namespace"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "configMap": {
+                                "items": [
+                                    {
+                                        "key": "service-ca.crt",
+                                        "path": "service-ca.crt"
+                                    }
+                                ],
+                                "name": "openshift-service-ca.crt"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2022-06-21T06:57:42Z",
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2022-06-21T06:57:42Z",
+                "message": "containers with unready status: [customer-postgres]",
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2022-06-21T06:57:42Z",
+                "message": "containers with unready status: [customer-postgres]",
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2022-06-21T06:57:42Z",
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "image": "docker.io/chengkuan/postgres:14",
+                "imageID": "",
+                "lastState": {},
+                "name": "customer-postgres",
+                "ready": false,
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "message": "Back-off pulling image \"docker.io/chengkuan/postgres:14\"",
+                        "reason": "ImagePullBackOff"
+                    }
+                }
+            }
+        ],
+        "hostIP": "10.0.145.50",
+        "phase": "Pending",
+        "podIP": "10.129.2.38",
+        "podIPs": [
+            {
+                "ip": "10.129.2.38"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2022-06-21T06:57:42Z"
+    }
+}
