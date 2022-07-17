@@ -1,0 +1,274 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: logging
+  labels:
+    app.kubernetes.io/name: logging
+    app.kubernetes.io/instance: logging
+  
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fluent-bit
+  namespace: logging
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluent-bit-read
+  namespace: logging
+rules:
+- apiGroups: [""]
+  resources:
+  - namespaces
+  - pods
+  verbs: ["get", "list", "watch"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fluent-bit-read
+  namespace: logging
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fluent-bit-read
+subjects:
+- kind: ServiceAccount
+  name: fluent-bit
+  namespace: logging
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: logging
+  labels:
+    app: fluent-bit
+data:
+  # Configuration files: server, input, filters and output
+  # ======================================================
+  fluent-bit.conf: |
+    [SERVICE]
+      Flush         5
+      Log_Level     info
+      Daemon        off
+      Parsers_File  parsers.conf
+      HTTP_Server   off
+      HTTP_Listen   0.0.0.0
+      HTTP_Port     2020
+
+    @INCLUDE input-kubernetes.conf
+    @INCLUDE filter-kubernetes.conf
+    @INCLUDE filter-geoip2.conf
+    @INCLUDE filter-nest.conf
+    @INCLUDE filter-record-modifier.conf
+    @INCLUDE output-elasticsearch.conf
+    #@INCLUDE output-stdout.conf
+
+  input-kubernetes.conf: |
+    [INPUT]
+      Name              tail
+      Tag               nginx.*
+      Path              /var/log/containers/ingress-nginx-controller*.log
+      #Parser            docker
+      Parser            cri
+      DB                /var/log/flb_kube.db
+      Mem_Buf_Limit     5MB
+      Skip_Long_Lines   On
+      Refresh_Interval  10
+
+  filter-kubernetes.conf: |
+    [FILTER]
+      Name                kubernetes
+      Match               nginx.*
+      Kube_URL            https://kubernetes.default.svc:443
+      Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+      Kube_Tag_Prefix     kube.var.log.containers.
+      Merge_Log           On
+      K8S-Logging.Parser  On
+      K8S-Logging.Exclude On
+      Merge_Parser        catchall
+      Keep_Log            Off
+      Labels              Off
+      Annotations         Off
+
+  filter-geoip2.conf: |
+    [FILTER]
+      Name geoip2
+      Match nginx.*
+      Database ${GEOIP2_DB}
+      Lookup_key real_client_ip
+      Record country_name real_client_ip %{country.names.en}
+      Record country_code real_client_ip %{country.iso_code}
+      Record city real_client_ip %{city.names.en}
+      Record coord.lat real_client_ip %{location.latitude}
+      Record coord.lon real_client_ip %{location.longitude}
+
+  filter-nest.conf: |
+    [FILTER]
+      Name nest
+      Match nginx.*
+      Operation nest
+      Wildcard coord.*
+      Nest_under coordinates
+      Remove_prefix coord.
+
+  filter-record-modifier.conf: |
+    [FILTER]
+      Name record_modifier
+      Match nginx.*
+      Remove_key kubernetes
+      Remove_key stream
+      Remove_key logtag
+      Remove_key reg_id
+
+  output-stdout.conf: |
+    [OUTPUT]
+      name  stdout
+      match *
+
+  output-elasticsearch.conf: |
+    [OUTPUT]
+      Name            es
+      Match           nginx.*
+      Host            ${ELASTICSEARCH_HOST}
+      Port            ${ELASTICSEARCH_PORT}
+      Logstash_Prefix nginx-k8s
+      Logstash_Format On
+      Replace_Dots    On
+      Retry_Limit     False
+      tls.verify      off
+      tls             on
+      HTTP_User       elastic
+      HTTP_Passwd     <elastic-password>
+      Trace_Error     On
+      Trace_Output    Off
+      Suppress_Type_Name  On
+
+  parsers.conf: |
+    [PARSER]
+      # https://rubular.com/r/V3W1DWyv5uFCfh
+      Name        k8s-nginx-ingress
+      Format      regex
+      Regex       ^(?<real_client_ip>[^ ]*) (?<host>[^ ]*) - (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*?)(?: +\S*)?)?" (?<code>[^ ]*) (?<size>[^ ]*) "(?<referer>[^\"]*)" "(?<agent>[^\"]*)" (?<request_length>[^ ]*) (?<request_time>[^ ]*) \[(?<proxy_upstream_name>[^ ]*)\] (\[(?<proxy_alternative_upstream_name>[^ ]*)\] )?(?<upstream_addr>[^ ]*) (?<upstream_response_length>[^ ]*) (?<upstream_response_time>[^ ]*) (?<upstream_status>[^ ]*) (?<reg_id>[^ ]*).*$
+      #Regex       ^(?<host>[^ ]*) - (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*?)(?: +\S*)?)?" (?<code>[^ ]*) (?<size>[^ ]*) "(?<referer>[^\"]*)" "(?<agent>[^\"]*)" (?<request_length>[^ ]*) (?<request_time>[^ ]*) \[(?<proxy_upstream_name>[^ ]*)\] (\[(?<proxy_alternative_upstream_name>[^ ]*)\] )?(?<upstream_addr>[^ ]*) (?<upstream_response_length>[^ ]*) (?<upstream_response_time>[^ ]*) (?<upstream_status>[^ ]*) (?<reg_id>[^ ]*).*$
+      Time_Key    time
+      Time_Format %d/%b/%Y:%H:%M:%S %z
+    [PARSER]
+      # http://rubular.com/r/tjUt3Awgg4
+      Name        cri
+      Format      regex
+      # XXX: modified from upstream: s/message/log/
+      Regex       ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
+      Time_Key    time
+      Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+    [PARSER]
+      Name    catchall
+      Format  regex
+      Regex   ^(?<message>.*)$
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: logging
+  labels:
+    app: fluent-bit
+  name: fluent-bit
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  namespace: logging
+  labels:
+    app: fluent-bit
+    version: v1
+    kubernetes.io/cluster-service: "true"
+spec:
+  selector:
+    matchLabels:
+      app: fluent-bit
+  template:
+    metadata:
+      labels:
+        app: fluent-bit
+        version: v1
+        kubernetes.io/cluster-service: "true"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "2020"
+        prometheus.io/path: /api/v1/metrics/prometheus
+    spec:
+      containers:
+      - name: fluent-bit
+        image: fluent/fluent-bit:1.9.6
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 2020
+        env:
+        - name: ELASTICSEARCH_HOST
+          value: "elasticsearch"
+        - name: ELASTICSEARCH_PORT
+          value: "9200"
+        - name: GEOIP2_DB
+          value: "/geoip2-db/GeoLite2-City.mmdb"
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: geoip2-db
+          mountPath: /geoip2-db
+          readOnly: true
+        - name: fluent-bit-config
+          mountPath: /fluent-bit/etc/
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: geoip2-db
+        persistentVolumeClaim:
+          claimName: fluent-bit
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+      serviceAccountName: fluent-bit
+      tolerations:
+      - key: type
+        operator: Equal
+        value: infra
+        effect: NoSchedule
+      affinity: 
+        nodeAffinity: 
+          requiredDuringSchedulingIgnoredDuringExecution: 
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node/type
+                operator: In
+                values: 
+                - infra
