@@ -1,0 +1,59 @@
+version: '2.1'
+services:
+  postgres:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION:-2.0.0.Final}
+    ports:
+     - 5432:5432
+    healthcheck:
+      test: "psql -U camel -d dbzdemo -c 'select version()'"
+      #test: "psql -U camel -d dbzdemo -c 'select custId from braindose.customer' "
+      interval: 10s
+      timeout: 20s
+      retries: 10
+    environment:
+     - POSTGRES_USER=camel
+     - POSTGRES_PASSWORD=camel
+     - PGPASSWORD=camel
+     - POSTGRES_DB=dbzdemo
+     - SCHEMA=braindose
+    volumes:
+      - ./db/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+      - /var/lib/postgresql/data
+  camel:
+    image: chengkuan/camel-dbz:latest
+    build:
+      context: camel
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
+    environment:
+     - DB_NAME=dbzdemo
+     - DBZ_OFFSET_FILE=/deployments/data/offset-file-1.dat
+     - DB_HOST=postgres
+     - DB_PORT=5432
+     - DB_USER=camel
+     - DB_PASSWORD=camel
+     - DBZ_DBSERVERNAME=camel-dbz-connector
+     - DBZ_DBHISTORYFILE=/deployments/data/history-file-1.dat
+     - DBZ_SCHEMAINCLUDELIST=braindose
+     - DBZ_TABLEINCLUDELIST=braindose.orders
+     - OUTPUT_DIR=/tmp/dbzdemo
+     - OUTPUT_FILENAME=dbz-camel-order.output
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - /deployments/data
+      - /tmp/dbzdemo:/tmp/dbzdemo
+  simulator:
+    image: chengkuan/dbzdemo-order-simulator:latest
+    build:
+      context: simulator
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
+    environment:
+     - QUARKUS_HIBERNATE-ORM_DATABASE_DEFAULT-SCHEMA=braindose
+     - QUARKUS_DATASOURCE_USERNAME=camel
+     - QUARKUS_DATASOURCE_PASSWORD=camel
+     - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://postgres:5432/dbzdemo?currentSchema=braindose
+     - CRON_SCHEDULER_INTERVAL=5s
+    depends_on:
+      postgres:
+        condition: service_healthy
