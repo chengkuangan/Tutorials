@@ -26,44 +26,40 @@ public class Routes extends RouteBuilder {
        public void configure() throws Exception {
 
               from(DBZ_SETTINGS)
-                            .log("Event received from Debezium : ${body}")
-                            .process(
-                                          exchange -> {
-                                                 Message in = exchange.getIn();
-                                                 final Struct body = in.getBody(Struct.class);
-                                                 CustomerOrder order = new CustomerOrder(
-                                                               body.getString("orderid"),
-                                                               body.getString("orderdate"),
-                                                               body.getString("sku"),
-                                                               body.getString("description"),
-                                                               body.getFloat64("amount"));
-                                                 in.setBody(order);
-
-                                          })
-                            .log("Captured order: ${body}")
-                            .setProperty("orderDetail", simple("${body}"))
-                            .setProperty("orderId", simple("${body.orderId}"))
-                            .to("sql:classpath:sql/customer.sql")
-                            .log("SQL Query from customer table: ${body}")
-                            .process(
-                                          exchange -> {
-                                                 CustomerOrder order = (CustomerOrder) exchange
-                                                               .getProperty("orderDetail");
-                                                 Message in = exchange.getIn();
-                                                 String custname = (String) ((Map) ((List) in.getBody()).get(0))
-                                                               .get("name");
-                                                 Integer custId = (Integer) ((Map) ((List) in.getBody()).get(0))
-                                                               .get("custId");
-                                                 order.setCustName(custname);
-                                                 order.setCustId(custId);
-                                                 in.setBody(order);
-
-                                          })
-                            .log("Enriched Order: ${body}")
-                            .marshal().json()
-                            .log("Transform Order Object to Json: ${body}")
-                            .to("file:{{output.dir}}?fileName={{output.filename}}&appendChars=\n&fileExist=Append")
-                            .log("JSON data saved into file.");
+                     .log("Event received from Debezium : ${body}")
+                     .process(
+                            exchange -> {
+                                   Message in = exchange.getIn();
+                                   final Struct body = in.getBody(Struct.class);
+                                   CustomerOrder order = new CustomerOrder(
+                                          body.getString("orderid"),
+                                          body.getString("orderdate"),
+                                          body.getString("sku"),
+                                          body.getString("description"),
+                                          body.getFloat64("amount"));
+                                   in.setBody(order);
+                            })
+                     .log("Captured order: ${body}")
+                     .setProperty("orderDetail", simple("${body}"))
+                     .setProperty("orderId", simple("${body.orderId}"))
+                     .to("sql:classpath:sql/customer.sql")
+                     .log("SQL Query from customer table: ${body}")
+                     .process(
+                            exchange -> {
+                                   CustomerOrder order = (CustomerOrder) exchange.getProperty("orderDetail");
+                                   Message in = exchange.getIn();
+                                   String custname = (String) ((Map) ((List) in.getBody()).get(0)).get("name");
+                                   Integer custId = (Integer) ((Map) ((List) in.getBody()).get(0)).get("custId");
+                                   order.setCustName(custname);
+                                   order.setCustId(custId);
+                                   in.setBody(order);
+                            })
+                     .log("Enriched Order: ${body}")
+                     .marshal().json()
+                     .log("Transform Order Object to Json: ${body}")
+                     .to("file:{{output.dir}}?fileName={{output.filename}}&appendChars=\n&fileExist=Append")
+                     .log("JSON data saved into file.")
+              ;
 
        }
 }
