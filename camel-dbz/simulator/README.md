@@ -1,3 +1,3 @@
 # Simulator
 
-Simulate new order creation in PostgreSQL database.
+This provide simulator app to randomly create new order in the PostgresSQL `order` table.
